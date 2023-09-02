@@ -59,9 +59,9 @@ public class UserServiceImpl implements UserService, UserDetailsService {
     }
 
     public AuthReponse login(LoginDTO loginDTO) {
-        var user = loadUserByUsername(loginDTO.getEmail());
+        var user = loadUserByUsername(loginDTO.getNim());
         authenticationManager.authenticate(new UsernamePasswordAuthenticationToken(
-                loginDTO.getEmail(), loginDTO.getPassword()
+                loginDTO.getNim(), loginDTO.getPassword()
         ));
         var jwtToken = service.generatedToken(user);
         return AuthReponse.builder()

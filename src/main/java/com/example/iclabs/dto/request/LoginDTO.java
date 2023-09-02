@@ -1,5 +1,6 @@
 package com.example.iclabs.dto.request;
 
+import jakarta.validation.constraints.Email;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
@@ -11,6 +12,7 @@ import lombok.NoArgsConstructor;
 @Builder
 public class LoginDTO {
 
-    private String email;
+
+    private String nim;
     private String password;
 }

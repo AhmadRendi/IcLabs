@@ -1,6 +1,5 @@
 package com.example.iclabs.service.impl;
 
-import com.example.iclabs.config.CacheConfig;
 import com.example.iclabs.dto.request.LoginDTO;
 import com.example.iclabs.dto.request.RegisterDTO;
 import com.example.iclabs.dto.respons.AuthReponse;
@@ -14,11 +13,10 @@ import com.example.iclabs.validation.DoubleNimException;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.modelmapper.ModelMapper;
-import org.springframework.cache.annotation.CachePut;
 import org.springframework.cache.annotation.Cacheable;
+import org.springframework.http.HttpStatus;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
-import org.springframework.security.core.Authentication;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
@@ -27,8 +25,8 @@ import org.springframework.stereotype.Service;
 
 
 import java.io.IOException;
+import java.util.ArrayList;
 import java.util.List;
-import java.util.Objects;
 
 @RequiredArgsConstructor
 @Service
@@ -58,24 +56,35 @@ public class UserServiceImpl implements UserService, UserDetailsService {
 
 
     @Override
-    public AuthReponse registrasi(RegisterDTO registerDTO) throws IOException {
+    public ResponseAPI<?> registrasi(RegisterDTO registerDTO) throws IOException {
+        try{
+            if(doubleNim(registerDTO.getNim())){
 
-        if(doubleNim(registerDTO.getNim())){
-            User user = new User();
-            user.setName(registerDTO.getName());
-            user.setNim(registerDTO.getNim());
-            user.setPass(passwordEncoder.encode(registerDTO.getPass()));
-            user.setRole(Role.valueOf(registerDTO.getRole()));
-            user.setNameMateri(registerDTO.getNameMateri());
-            user.setImage(registerDTO.getImage().getBytes());
-            user.setCv(registerDTO.getCv().getBytes());
+                User user = new User();
+                user.setName(registerDTO.getName());
+                user.setNim(registerDTO.getNim());
+                user.setPass(passwordEncoder.encode(registerDTO.getPass()));
+                user.setRole(Role.valueOf(registerDTO.getRole()));
+                user.setNameMateri(registerDTO.getNameMateri());
+                user.setImage(registerDTO.getImage().getBytes());
+                user.setCv(registerDTO.getCv().getBytes());
 
-//        User user = modelMapper.map(registerDTO, User.class);
-//        user.setPass(passwordEncoder.encode(registerDTO.getPass()));
-            userRepo.save(user);
-            var jwtToken = service.generatedToken(user);
-            return AuthReponse.builder()
-                    .token(jwtToken)
+                userRepo.save(user);
+                var jwtToken = service.generatedToken(user);
+                return ResponseAPI.builder()
+                        .code(HttpStatus.CREATED.value())
+                        .token(jwtToken)
+                        .message("berhasil menambahkan")
+                        .build();
+            }
+        }catch (DoubleNimException exception){
+            List<String> error = new ArrayList<>();
+            error.add(exception.getMessage());
+            error.add(HttpStatus.INTERNAL_SERVER_ERROR.name());
+            return ResponseAPI.builder()
+                    .code(HttpStatus.INTERNAL_SERVER_ERROR.value())
+                    .error(error)
+                    .message("gagal menambahkan")
                     .build();
         }
         return null;

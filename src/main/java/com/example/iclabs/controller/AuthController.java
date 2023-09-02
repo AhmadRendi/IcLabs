@@ -25,7 +25,7 @@ public class AuthController {
     private final UserServiceImpl userService;
 
     @PostMapping("/register")
-    public ResponseEntity<AuthReponse> register(
+    public ResponseEntity<ResponseAPI<?>> register(
             @ModelAttribute RegisterDTO request
     ) throws IOException {
         return ResponseEntity.ok(userService.registrasi(request));

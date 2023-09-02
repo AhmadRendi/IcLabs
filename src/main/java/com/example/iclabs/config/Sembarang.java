@@ -5,4 +5,6 @@ public class Sembarang {
 
     private String usiaSembarang;
 
+    private Long id;
+
 }

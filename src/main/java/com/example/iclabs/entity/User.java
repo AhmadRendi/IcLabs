@@ -28,6 +28,17 @@ public class User implements UserDetails {
     private String name;
     private String nim;
     private String pass;
+
+    @Lob
+    @Column(columnDefinition = "longblob")
+    private byte[] image;
+
+    private String nameMateri;
+
+    @Lob
+    @Column(columnDefinition = "longblob")
+    private byte[] cv;
+
     @Enumerated(EnumType.STRING)
     private Role role;
 

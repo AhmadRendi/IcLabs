@@ -7,8 +7,10 @@ import com.example.iclabs.dto.respons.AuthReponse;
 import com.example.iclabs.dto.respons.ResponseAPI;
 import com.example.iclabs.entity.User;
 import com.example.iclabs.repo.UserRepo;
+import com.example.iclabs.role.Role;
 import com.example.iclabs.security.jwt.JWTService;
 import com.example.iclabs.service.UserService;
+import com.example.iclabs.validation.DoubleNimException;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.modelmapper.ModelMapper;
@@ -24,6 +26,7 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
 
+import java.io.IOException;
 import java.util.List;
 import java.util.Objects;
 
@@ -41,21 +44,41 @@ public class UserServiceImpl implements UserService, UserDetailsService {
 
     @Override
     public UserDetails loadUserByUsername(String username) throws UsernameNotFoundException {
-        return userRepo.findByEmail(username).orElseThrow(() -> {
+        return userRepo.findByNim(username).orElseThrow(() -> {
             throw new UsernameNotFoundException("email not found");
         });
     }
 
+    private boolean doubleNim(String nim){
+        if(getUserByNim(nim) != null){
+            throw new DoubleNimException("nim telah digunakan");
+        }
+        return true;
+    }
+
 
     @Override
-    public AuthReponse registrasi(RegisterDTO registerDTO) {
-        User user = modelMapper.map(registerDTO, User.class);
-        user.setPass(passwordEncoder.encode(registerDTO.getPass()));
-        userRepo.save(user);
-        var jwtToken = service.generatedToken(user);
-        return AuthReponse.builder()
-                .token(jwtToken)
-                .build();
+    public AuthReponse registrasi(RegisterDTO registerDTO) throws IOException {
+
+        if(doubleNim(registerDTO.getNim())){
+            User user = new User();
+            user.setName(registerDTO.getName());
+            user.setNim(registerDTO.getNim());
+            user.setPass(passwordEncoder.encode(registerDTO.getPass()));
+            user.setRole(Role.valueOf(registerDTO.getRole()));
+            user.setNameMateri(registerDTO.getNameMateri());
+            user.setImage(registerDTO.getImage().getBytes());
+            user.setCv(registerDTO.getCv().getBytes());
+
+//        User user = modelMapper.map(registerDTO, User.class);
+//        user.setPass(passwordEncoder.encode(registerDTO.getPass()));
+            userRepo.save(user);
+            var jwtToken = service.generatedToken(user);
+            return AuthReponse.builder()
+                    .token(jwtToken)
+                    .build();
+        }
+        return null;
     }
 
     public AuthReponse login(LoginDTO loginDTO) {
@@ -81,6 +104,14 @@ public class UserServiceImpl implements UserService, UserDetailsService {
     @Cacheable(key = "#id")
     public User getUserById(Long id) {
         return getById(id);
+    }
+
+    @Cacheable(key = "#nim")
+    public User getUserByNim(String nim){
+        if(userRepo.findByNim(nim).isPresent()){
+            return userRepo.findByNim(nim).get();
+        }
+        return null;
     }
 
     public User getById(Long id) {

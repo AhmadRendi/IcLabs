@@ -14,6 +14,8 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
+import java.io.IOException;
+
 @RestController
 @RequestMapping("/api/v1/auth")
 @RequiredArgsConstructor
@@ -24,8 +26,8 @@ public class AuthController {
 
     @PostMapping("/register")
     public ResponseEntity<AuthReponse> register(
-            @RequestBody RegisterDTO request
-    ){
+            @ModelAttribute RegisterDTO request
+    ) throws IOException {
         return ResponseEntity.ok(userService.registrasi(request));
     }
 

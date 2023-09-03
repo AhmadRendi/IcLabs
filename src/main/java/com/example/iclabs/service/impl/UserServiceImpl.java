@@ -10,6 +10,7 @@ import com.example.iclabs.role.Role;
 import com.example.iclabs.security.jwt.JWTService;
 import com.example.iclabs.service.UserService;
 import com.example.iclabs.validation.DoubleNimException;
+import com.example.iclabs.validation.ErrorHandling;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.modelmapper.ModelMapper;
@@ -22,11 +23,13 @@ import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
+import org.springframework.validation.Errors;
 
 
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Optional;
 
 @RequiredArgsConstructor
 @Service
@@ -35,7 +38,6 @@ import java.util.List;
 public class UserServiceImpl implements UserService, UserDetailsService {
 
     private final UserRepo userRepo;
-    private final ModelMapper modelMapper;
     private final PasswordEncoder passwordEncoder;
     private final JWTService service;
     private final AuthenticationManager authenticationManager;
@@ -48,7 +50,7 @@ public class UserServiceImpl implements UserService, UserDetailsService {
     }
 
     private boolean doubleNim(String nim){
-        if(getUserByNim(nim) != null){
+        if(getUserByNimCache(nim) != null){
             throw new DoubleNimException("nim telah digunakan");
         }
         return true;
@@ -56,37 +58,41 @@ public class UserServiceImpl implements UserService, UserDetailsService {
 
 
     @Override
-    public ResponseAPI<?> registrasi(RegisterDTO registerDTO) throws IOException {
-        try{
-            if(doubleNim(registerDTO.getNim())){
+    public ResponseAPI<?> registrasi(RegisterDTO registerDTO, Errors errors) throws IOException {
 
-                User user = new User();
-                user.setName(registerDTO.getName());
-                user.setNim(registerDTO.getNim());
-                user.setPass(passwordEncoder.encode(registerDTO.getPass()));
-                user.setRole(Role.valueOf(registerDTO.getRole()));
-                user.setNameMateri(registerDTO.getNameMateri());
-                user.setImage(registerDTO.getImage().getBytes());
-                user.setCv(registerDTO.getCv().getBytes());
+            try{
+                if(
+                        doubleNim(registerDTO.getNim()) &&
+                                ErrorHandling.argumentErrorException(errors)
 
-                userRepo.save(user);
-                var jwtToken = service.generatedToken(user);
+                ){
+                    User user = new User();
+                    user.setName(registerDTO.getName());
+                    user.setNim(registerDTO.getNim());
+                    user.setPass(passwordEncoder.encode(registerDTO.getPass()));
+                    user.setRole(Role.valueOf(registerDTO.getRole()));
+                    user.setNameMateri(registerDTO.getNameMateri());
+                    user.setImage(registerDTO.getImage().getBytes());
+                    user.setCv(registerDTO.getCv().getBytes());
+
+                    userRepo.save(user);
+                    var jwtToken = service.generatedToken(user);
+                    return ResponseAPI.builder()
+                            .code(HttpStatus.CREATED.value())
+                            .token(jwtToken)
+                            .message("berhasil menambahkan")
+                            .build();
+                }
+            }catch (DoubleNimException | IllegalArgumentException exception){
+                List<String> error = new ArrayList<>();
+                error.add(exception.getMessage());
+                error.add(HttpStatus.INTERNAL_SERVER_ERROR.name());
                 return ResponseAPI.builder()
-                        .code(HttpStatus.CREATED.value())
-                        .token(jwtToken)
-                        .message("berhasil menambahkan")
+                        .code(HttpStatus.INTERNAL_SERVER_ERROR.value())
+                        .error(error)
+                        .message("gagal menambahkan")
                         .build();
             }
-        }catch (DoubleNimException exception){
-            List<String> error = new ArrayList<>();
-            error.add(exception.getMessage());
-            error.add(HttpStatus.INTERNAL_SERVER_ERROR.name());
-            return ResponseAPI.builder()
-                    .code(HttpStatus.INTERNAL_SERVER_ERROR.value())
-                    .error(error)
-                    .message("gagal menambahkan")
-                    .build();
-        }
         return null;
     }
 
@@ -115,19 +121,25 @@ public class UserServiceImpl implements UserService, UserDetailsService {
         return getById(id);
     }
 
-    @Cacheable(key = "#nim")
-    public User getUserByNim(String nim){
-        if(userRepo.findByNim(nim).isPresent()){
-            return userRepo.findByNim(nim).get();
-        }
-        return null;
+    private User getUserByNim(String nim){
+        Optional<User> optional = userRepo.findByNim(nim);
+        return optional.orElse(null);
     }
 
+    @Cacheable(key = "#nim")
+    public User getUserByNimCache(String nim){
+        return getUserByNim(nim);
+    }
+
+    @Cacheable(key = "#nim")
+    public Optional<User> getUserByNimCache2(String nim){
+        return userRepo.findByNim(nim);
+    }
+
+
     public User getById(Long id) {
-        if (userRepo.findById(id).isPresent()) {
-            return userRepo.findById(id).get();
-        }
-        return null;
+        Optional<User> optional = userRepo.findById(id);
+        return optional.orElse(null);
     }
 
     @Override

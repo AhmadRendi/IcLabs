@@ -2,6 +2,7 @@ package com.example.iclabs.dto.request;
 
 
 import jakarta.validation.constraints.Email;
+import jakarta.validation.constraints.NotBlank;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
@@ -14,13 +15,18 @@ import org.springframework.web.multipart.MultipartFile;
 @NoArgsConstructor
 public class RegisterDTO {
 
+    @NotBlank(message = "nama tidak boleh kosong")
     private String name;
-    @Email(message = "email tidak valid")
+
+    @NotBlank(message = "nim tidak boleh kosong")
     private String nim;
+
+    @NotBlank(message = "password tidak boleh kosong")
     private String pass;
 
     private MultipartFile image;
 
+    @NotBlank(message = "materi tidak boleh kosong")
     private String nameMateri;
 
     private MultipartFile cv;

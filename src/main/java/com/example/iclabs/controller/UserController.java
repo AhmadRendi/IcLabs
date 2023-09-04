@@ -8,7 +8,6 @@ import com.example.iclabs.dto.respons.ResponseAPI;
 import com.example.iclabs.entity.User;
 import com.example.iclabs.service.impl.UserServiceImpl;
 import jakarta.validation.Valid;
-import jakarta.websocket.server.PathParam;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpStatus;
@@ -77,7 +76,7 @@ public class UserController {
     }
 
     @GetMapping("/nim/{nim}")
-    public ResponseEntity<ResponseAPI> getUserByNim(@PathVariable String nim){
+    public ResponseEntity<ResponseAPI<?>> getUserByNim(@PathVariable String nim){
         User user = userService.getUserByNimCache(nim);
 
         ResponseAPI<?> responseAPI = ResponseAPI.builder()

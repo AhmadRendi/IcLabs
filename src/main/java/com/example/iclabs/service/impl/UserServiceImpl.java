@@ -13,7 +13,6 @@ import com.example.iclabs.validation.DoubleNimException;
 import com.example.iclabs.validation.ErrorHandling;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.modelmapper.ModelMapper;
 import org.springframework.cache.annotation.Cacheable;
 import org.springframework.http.HttpStatus;
 import org.springframework.security.authentication.AuthenticationManager;
@@ -59,7 +58,7 @@ public class UserServiceImpl implements UserService, UserDetailsService {
 
     @Override
     public ResponseAPI<?> registrasi(RegisterDTO registerDTO, Errors errors) throws IOException {
-
+        log.info("name yang dikirim : " + registerDTO.getName());
             try{
                 if(
                         doubleNim(registerDTO.getNim()) &&
@@ -130,12 +129,6 @@ public class UserServiceImpl implements UserService, UserDetailsService {
     public User getUserByNimCache(String nim){
         return getUserByNim(nim);
     }
-
-    @Cacheable(key = "#nim")
-    public Optional<User> getUserByNimCache2(String nim){
-        return userRepo.findByNim(nim);
-    }
-
 
     public User getById(Long id) {
         Optional<User> optional = userRepo.findById(id);

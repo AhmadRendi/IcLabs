@@ -17,6 +17,7 @@ import org.springframework.test.web.servlet.request.MockMvcRequestBuilders;
 
 
 import java.io.*;
+import java.util.InputMismatchException;
 import java.util.concurrent.atomic.AtomicReference;
 
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
@@ -66,10 +67,10 @@ public class UserConstrollerTest {
             Assertions.assertNull(e);
         }
 
-        registerDTO.setName("Nasrullah");
-        registerDTO.setNim("12093284924");
-        registerDTO.setPass("123");
-        registerDTO.setNameMateri("Mecine Learning");
+        registerDTO.setName("Afian Febrianto");
+        registerDTO.setNim("13020210053");
+        registerDTO.setPass("bi@ncA09");
+        registerDTO.setNameMateri("Kotlin");
 
         mockMvc.perform(MockMvcRequestBuilders.multipart("/api/v1/auth/register")
                 .file(mockImgeFile)
@@ -125,7 +126,6 @@ public class UserConstrollerTest {
                     token.set(authReponse.getToken());
                 }
         );
-
         return token.get();
     }
 
@@ -135,7 +135,8 @@ public class UserConstrollerTest {
         RegisterDTO registerDTO = new RegisterDTO();
 
         File fileImage = new File("D:\\album\\asser1\\WhatsApp " +
-                "Image 2023-08-30 at 10.33.32.jpg");
+                "Image 2023-08-30 at 10.33.32.jpg"
+        );
         MockMultipartFile mockFileImage = null;
         try(FileInputStream inputFileImage = new FileInputStream(fileImage)){
 
@@ -164,9 +165,6 @@ public class UserConstrollerTest {
         registerDTO.setNim("13020210051");
         registerDTO.setPass("@hmadRendi21");
         registerDTO.setNameMateri("Kotlin");
-        registerDTO.setCv(mockFileCv);
-        registerDTO.setImage(mockFileImage);
-
 
         mockMvc.perform(
                 MockMvcRequestBuilders.multipart("/api/v1/auth/register")
@@ -191,6 +189,457 @@ public class UserConstrollerTest {
               System.out.println("message : " + responseAPI.message());
               System.out.println("message error : " + responseAPI.error());
           }
+        );
+    }
+
+    @Test
+    void registerIsFailedBecauseNimIsNull() throws Exception {
+
+        RegisterDTO registerDTO = new RegisterDTO();
+
+        File fileImage = new File(
+                "D:\\album\\asser1\\WhatsApp " +
+                        "Image 2023-08-30 at 10.33.32.jpg"
+        );
+        MockMultipartFile mockFileImage = null;
+        try(FileInputStream inputFileImage = new FileInputStream(fileImage)){
+            mockFileImage = new MockMultipartFile(
+                    "image", fileImage.getName(),
+                    "multipartfile/form-data", inputFileImage
+            );
+        }catch (IOException exception){
+            throw new InputMismatchException(exception.getMessage());
+        }
+
+
+        File fileCv = new File(
+                "D:\\album\\asser1\\Screenshot 2023-08-20 005201.png"
+        );
+        MockMultipartFile mockFileCv = null;
+        try(FileInputStream inputFileCv = new FileInputStream(fileCv)){
+            mockFileCv = new MockMultipartFile(
+                    "cv", fileCv.getName(),
+                    "multipartfile/form-data", inputFileCv
+            );
+        }catch (IOException exception){
+            throw new InputMismatchException(exception.getMessage());
+        }
+
+        registerDTO.setName("Afian Febrianto");
+        registerDTO.setNim("");
+        registerDTO.setPass("@hmadRendi21");
+        registerDTO.setNameMateri("Kotlin");
+
+        mockMvc.perform(
+                MockMvcRequestBuilders.multipart("/api/v1/auth/register")
+                        .file(mockFileCv)
+                        .file(mockFileImage)
+                        .param("name", registerDTO.getName())
+                        .param("nim", registerDTO.getNim())
+                        .param("pass", registerDTO.getPass())
+                        .param("nameMateri", registerDTO.getNameMateri())
+        ).andExpectAll(
+                status().isOk()
+        ).andDo(
+                result -> {
+                    ResponseAPI<?> responseAPI = objectMapper.readValue(
+                            result.getResponse().getContentAsString(), ResponseAPI.class
+                    );
+                    Assertions.assertEquals("gagal menambahkan", responseAPI.message());
+                    Assertions.assertNotNull(responseAPI.error());
+                    Assertions.assertEquals(500, responseAPI.code());
+
+                    System.out.println("status code : " + responseAPI.code());
+                    System.out.println("message : " + responseAPI.message());
+                    System.out.println("message error : " + responseAPI.error());
+                }
+        );
+    }
+
+
+    @Test
+    void registerIsFailedBecausePassIsNull() throws Exception {
+
+        RegisterDTO registerDTO = new RegisterDTO();
+
+        File fileImage = new File(
+                "D:\\album\\asser1\\WhatsApp " +
+                        "Image 2023-08-30 at 10.33.32.jpg"
+        );
+        MockMultipartFile mockFileImage = null;
+        try(FileInputStream inputFileImage = new FileInputStream(fileImage)){
+            mockFileImage = new MockMultipartFile(
+                    "image", fileImage.getName(),
+                    "multipartfile/form-data", inputFileImage
+            );
+        }catch (IOException exception){
+            throw new InputMismatchException(exception.getMessage());
+        }
+
+
+        File fileCv = new File(
+                "D:\\album\\asser1\\Screenshot 2023-08-20 005201.png"
+        );
+        MockMultipartFile mockFileCv = null;
+        try(FileInputStream inputFileCv = new FileInputStream(fileCv)){
+            mockFileCv = new MockMultipartFile(
+                    "cv", fileCv.getName(),
+                    "multipartfile/form-data", inputFileCv
+            );
+        }catch (IOException exception){
+            throw new InputMismatchException(exception.getMessage());
+        }
+
+        registerDTO.setName("Afian Febrianto");
+        registerDTO.setNim("13020210052");
+        registerDTO.setPass("");
+        registerDTO.setNameMateri("Kotlin");
+
+        mockMvc.perform(
+                MockMvcRequestBuilders.multipart("/api/v1/auth/register")
+                        .file(mockFileCv)
+                        .file(mockFileImage)
+                        .param("name", registerDTO.getName())
+                        .param("nim", registerDTO.getNim())
+                        .param("pass", registerDTO.getPass())
+                        .param("nameMateri", registerDTO.getNameMateri())
+        ).andExpectAll(
+                status().isOk()
+        ).andDo(
+                result -> {
+                    ResponseAPI<?> responseAPI = objectMapper.readValue(
+                            result.getResponse().getContentAsString(), ResponseAPI.class
+                    );
+                    Assertions.assertEquals("gagal menambahkan", responseAPI.message());
+                    Assertions.assertNotNull(responseAPI.error());
+                    Assertions.assertEquals(500, responseAPI.code());
+
+                    System.out.println("status code : " + responseAPI.code());
+                    System.out.println("message : " + responseAPI.message());
+                    System.out.println("message error : " + responseAPI.error());
+                }
+        );
+    }
+
+
+    @Test
+    void registerIsFailedBecauseNameMateriIsNull() throws Exception {
+
+        RegisterDTO registerDTO = new RegisterDTO();
+
+        File fileImage = new File(
+                "D:\\album\\asser1\\WhatsApp " +
+                        "Image 2023-08-30 at 10.33.32.jpg"
+        );
+        MockMultipartFile mockFileImage = null;
+        try(FileInputStream inputFileImage = new FileInputStream(fileImage)){
+            mockFileImage = new MockMultipartFile(
+                    "image", fileImage.getName(),
+                    "multipartfile/form-data", inputFileImage
+            );
+        }catch (IOException exception){
+            throw new InputMismatchException(exception.getMessage());
+        }
+
+
+        File fileCv = new File(
+                "D:\\album\\asser1\\Screenshot 2023-08-20 005201.png"
+        );
+        MockMultipartFile mockFileCv = null;
+        try(FileInputStream inputFileCv = new FileInputStream(fileCv)){
+            mockFileCv = new MockMultipartFile(
+                    "cv", fileCv.getName(),
+                    "multipartfile/form-data", inputFileCv
+            );
+        }catch (IOException exception){
+            throw new InputMismatchException(exception.getMessage());
+        }
+
+        registerDTO.setName("Afian Febrianto");
+        registerDTO.setNim("13020210052");
+        registerDTO.setPass("@hmadRendi21");
+        registerDTO.setNameMateri("");
+
+        mockMvc.perform(
+                MockMvcRequestBuilders.multipart("/api/v1/auth/register")
+                        .file(mockFileCv)
+                        .file(mockFileImage)
+                        .param("name", registerDTO.getName())
+                        .param("nim", registerDTO.getNim())
+                        .param("pass", registerDTO.getPass())
+                        .param("nameMateri", registerDTO.getNameMateri())
+        ).andExpectAll(
+                status().isOk()
+        ).andDo(
+                result -> {
+                    ResponseAPI<?> responseAPI = objectMapper.readValue(
+                            result.getResponse().getContentAsString(), ResponseAPI.class
+                    );
+                    Assertions.assertEquals("gagal menambahkan", responseAPI.message());
+                    Assertions.assertNotNull(responseAPI.error());
+                    Assertions.assertEquals(500, responseAPI.code());
+
+                    System.out.println("status code : " + responseAPI.code());
+                    System.out.println("message : " + responseAPI.message());
+                    System.out.println("message error : " + responseAPI.error());
+                }
+        );
+    }
+
+    @Test
+    void registerIsFailedBecausePasswordDontHaveUpCase() throws Exception {
+
+        RegisterDTO registerDTO = new RegisterDTO();
+
+        File fileImage = new File(
+                "D:\\album\\asser1\\WhatsApp " +
+                        "Image 2023-08-30 at 10.33.32.jpg"
+        );
+        MockMultipartFile mockFileImage = null;
+        try(FileInputStream inputFileImage = new FileInputStream(fileImage)){
+            mockFileImage = new MockMultipartFile(
+                    "image", fileImage.getName(),
+                    "multipartfile/form-data", inputFileImage
+            );
+        }catch (IOException exception){
+            throw new InputMismatchException(exception.getMessage());
+        }
+
+
+        File fileCv = new File(
+                "D:\\album\\asser1\\Screenshot 2023-08-20 005201.png"
+        );
+        MockMultipartFile mockFileCv = null;
+        try(FileInputStream inputFileCv = new FileInputStream(fileCv)){
+            mockFileCv = new MockMultipartFile(
+                    "cv", fileCv.getName(),
+                    "multipartfile/form-data", inputFileCv
+            );
+        }catch (IOException exception){
+            throw new InputMismatchException(exception.getMessage());
+        }
+
+        registerDTO.setName("Afian Febrianto");
+        registerDTO.setNim("13020210052");
+        registerDTO.setPass("bi@nca9");
+        registerDTO.setNameMateri("Kotlin");
+
+        mockMvc.perform(
+                MockMvcRequestBuilders.multipart("/api/v1/auth/register")
+                        .file(mockFileCv)
+                        .file(mockFileImage)
+                        .param("name", registerDTO.getName())
+                        .param("nim", registerDTO.getNim())
+                        .param("pass", registerDTO.getPass())
+                        .param("nameMateri", registerDTO.getNameMateri())
+        ).andExpectAll(
+                status().isOk()
+        ).andDo(
+                result -> {
+                    ResponseAPI<?> responseAPI = objectMapper.readValue(
+                            result.getResponse().getContentAsString(), ResponseAPI.class
+                    );
+                    Assertions.assertEquals("gagal menambahkan", responseAPI.message());
+                    Assertions.assertNotNull(responseAPI.error());
+                    Assertions.assertEquals(500, responseAPI.code());
+
+                    System.out.println("status code : " + responseAPI.code());
+                    System.out.println("message : " + responseAPI.message());
+                    System.out.println("message error : " + responseAPI.error());
+                }
+        );
+    }
+
+
+    @Test
+    void registerIsFailedBecausePasswordDontHaveLowCase() throws Exception {
+
+        RegisterDTO registerDTO = new RegisterDTO();
+
+        File fileImage = new File(
+                "D:\\album\\asser1\\WhatsApp " +
+                        "Image 2023-08-30 at 10.33.32.jpg"
+        );
+        MockMultipartFile mockFileImage = null;
+        try(FileInputStream inputFileImage = new FileInputStream(fileImage)){
+            mockFileImage = new MockMultipartFile(
+                    "image", fileImage.getName(),
+                    "multipartfile/form-data", inputFileImage
+            );
+        }catch (IOException exception){
+            throw new InputMismatchException(exception.getMessage());
+        }
+
+
+        File fileCv = new File(
+                "D:\\album\\asser1\\Screenshot 2023-08-20 005201.png"
+        );
+        MockMultipartFile mockFileCv = null;
+        try(FileInputStream inputFileCv = new FileInputStream(fileCv)){
+            mockFileCv = new MockMultipartFile(
+                    "cv", fileCv.getName(),
+                    "multipartfile/form-data", inputFileCv
+            );
+        }catch (IOException exception){
+            throw new InputMismatchException(exception.getMessage());
+        }
+
+        registerDTO.setName("Afian Febrianto");
+        registerDTO.setNim("13020210052");
+        registerDTO.setPass("BI@NCA9");
+        registerDTO.setNameMateri("Kotlin");
+
+        mockMvc.perform(
+                MockMvcRequestBuilders.multipart("/api/v1/auth/register")
+                        .file(mockFileCv)
+                        .file(mockFileImage)
+                        .param("name", registerDTO.getName())
+                        .param("nim", registerDTO.getNim())
+                        .param("pass", registerDTO.getPass())
+                        .param("nameMateri", registerDTO.getNameMateri())
+        ).andExpectAll(
+                status().isOk()
+        ).andDo(
+                result -> {
+                    ResponseAPI<?> responseAPI = objectMapper.readValue(
+                            result.getResponse().getContentAsString(), ResponseAPI.class
+                    );
+                    Assertions.assertEquals("gagal menambahkan", responseAPI.message());
+                    Assertions.assertNotNull(responseAPI.error());
+                    Assertions.assertEquals(500, responseAPI.code());
+
+                    System.out.println("status code : " + responseAPI.code());
+                    System.out.println("message : " + responseAPI.message());
+                    System.out.println("message error : " + responseAPI.error());
+                }
+        );
+    }
+
+    @Test
+    void registerIsFailedBecausePasswordDontHaveSymbol() throws Exception {
+
+        RegisterDTO registerDTO = new RegisterDTO();
+
+        File fileImage = new File(
+                "D:\\album\\asser1\\WhatsApp " +
+                        "Image 2023-08-30 at 10.33.32.jpg"
+        );
+        MockMultipartFile mockFileImage = null;
+        try(FileInputStream inputFileImage = new FileInputStream(fileImage)){
+            mockFileImage = new MockMultipartFile(
+                    "image", fileImage.getName(),
+                    "multipartfile/form-data", inputFileImage
+            );
+        }catch (IOException exception){
+            throw new InputMismatchException(exception.getMessage());
+        }
+
+
+        File fileCv = new File(
+                "D:\\album\\asser1\\Screenshot 2023-08-20 005201.png"
+        );
+        MockMultipartFile mockFileCv = null;
+        try(FileInputStream inputFileCv = new FileInputStream(fileCv)){
+            mockFileCv = new MockMultipartFile(
+                    "cv", fileCv.getName(),
+                    "multipartfile/form-data", inputFileCv
+            );
+        }catch (IOException exception){
+            throw new InputMismatchException(exception.getMessage());
+        }
+
+        registerDTO.setName("Afian Febrianto");
+        registerDTO.setNim("13020210052");
+        registerDTO.setPass("biAnca9");
+        registerDTO.setNameMateri("Kotlin");
+
+        mockMvc.perform(
+                MockMvcRequestBuilders.multipart("/api/v1/auth/register")
+                        .file(mockFileCv)
+                        .file(mockFileImage)
+                        .param("name", registerDTO.getName())
+                        .param("nim", registerDTO.getNim())
+                        .param("pass", registerDTO.getPass())
+                        .param("nameMateri", registerDTO.getNameMateri())
+        ).andExpectAll(
+                status().isOk()
+        ).andDo(
+                result -> {
+                    ResponseAPI<?> responseAPI = objectMapper.readValue(
+                            result.getResponse().getContentAsString(), ResponseAPI.class
+                    );
+                    Assertions.assertEquals("gagal menambahkan", responseAPI.message());
+                    Assertions.assertNotNull(responseAPI.error());
+                    Assertions.assertEquals(500, responseAPI.code());
+
+                    System.out.println("status code : " + responseAPI.code());
+                    System.out.println("message : " + responseAPI.message());
+                    System.out.println("message error : " + responseAPI.error());
+                }
+        );
+    }
+
+    @Test
+    void registerIsFailedBecausePasswordDontHaveNumber() throws Exception {
+
+        RegisterDTO registerDTO = new RegisterDTO();
+
+        File fileImage = new File(
+                "D:\\album\\asser1\\WhatsApp " +
+                        "Image 2023-08-30 at 10.33.32.jpg"
+        );
+        MockMultipartFile mockFileImage = null;
+        try(FileInputStream inputFileImage = new FileInputStream(fileImage)){
+            mockFileImage = new MockMultipartFile(
+                    "image", fileImage.getName(),
+                    "multipartfile/form-data", inputFileImage
+            );
+        }catch (IOException exception){
+            throw new InputMismatchException(exception.getMessage());
+        }
+
+
+        File fileCv = new File(
+                "D:\\album\\asser1\\Screenshot 2023-08-20 005201.png"
+        );
+        MockMultipartFile mockFileCv = null;
+        try(FileInputStream inputFileCv = new FileInputStream(fileCv)){
+            mockFileCv = new MockMultipartFile(
+                    "cv", fileCv.getName(),
+                    "multipartfile/form-data", inputFileCv
+            );
+        }catch (IOException exception){
+            throw new InputMismatchException(exception.getMessage());
+        }
+
+        registerDTO.setName("Afian Febrianto");
+        registerDTO.setNim("13020210052");
+        registerDTO.setPass("bi@ncA");
+        registerDTO.setNameMateri("Kotlin");
+
+        mockMvc.perform(
+                MockMvcRequestBuilders.multipart("/api/v1/auth/register")
+                        .file(mockFileCv)
+                        .file(mockFileImage)
+                        .param("name", registerDTO.getName())
+                        .param("nim", registerDTO.getNim())
+                        .param("pass", registerDTO.getPass())
+                        .param("nameMateri", registerDTO.getNameMateri())
+        ).andExpectAll(
+                status().isOk()
+        ).andDo(
+                result -> {
+                    ResponseAPI<?> responseAPI = objectMapper.readValue(
+                            result.getResponse().getContentAsString(), ResponseAPI.class
+                    );
+                    Assertions.assertEquals("gagal menambahkan", responseAPI.message());
+                    Assertions.assertNotNull(responseAPI.error());
+                    Assertions.assertEquals(500, responseAPI.code());
+
+                    System.out.println("status code : " + responseAPI.code());
+                    System.out.println("message : " + responseAPI.message());
+                    System.out.println("message error : " + responseAPI.error());
+                }
         );
     }
 

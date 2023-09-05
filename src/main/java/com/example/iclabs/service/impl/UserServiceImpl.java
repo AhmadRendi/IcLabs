@@ -74,7 +74,7 @@ public class UserServiceImpl implements UserService, UserDetailsService {
             return true;
         }
         throw new InputMismatchException(
-                "password harus campuran angka, symbol, harus besar dan huruf kecia"
+                "password harus campuran angka, symbol, harus besar dan huruf kecil"
         );
     }
 
@@ -111,7 +111,13 @@ public class UserServiceImpl implements UserService, UserDetailsService {
                             .message("berhasil menambahkan")
                             .build();
                 }
-            }catch (DoubleNimException | IllegalArgumentException exception){
+            }catch (
+                    DoubleNimException |
+                            IllegalArgumentException |
+                            InputMismatchException
+                            exception
+            ){
+
                 List<String> error = new ArrayList<>();
                 error.add(exception.getMessage());
                 error.add(HttpStatus.INTERNAL_SERVER_ERROR.name());

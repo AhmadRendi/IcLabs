@@ -65,7 +65,7 @@ public class UserConstrollerTest {
         }catch (IOException e){
             Assertions.assertNull(e);
         }
-        
+
         registerDTO.setName("Nasrullah");
         registerDTO.setNim("12093284924");
         registerDTO.setPass("123");
@@ -96,11 +96,12 @@ public class UserConstrollerTest {
         );
     }
 
-    @Test
-    void getUserByNimCache() throws Exception {
+
+    String login() throws Exception {
 
         String nim = "13020210050";
         String pass = "123";
+
         AtomicReference<String> token = new AtomicReference<>("");
 
         LoginDTO loginDTO = new LoginDTO();
@@ -125,10 +126,81 @@ public class UserConstrollerTest {
                 }
         );
 
+        return token.get();
+    }
+
+    @Test
+    void registerFailedBecauseNameIsNull() throws Exception {
+
+        RegisterDTO registerDTO = new RegisterDTO();
+
+        File fileImage = new File("D:\\album\\asser1\\WhatsApp " +
+                "Image 2023-08-30 at 10.33.32.jpg");
+        MockMultipartFile mockFileImage = null;
+        try(FileInputStream inputFileImage = new FileInputStream(fileImage)){
+
+             mockFileImage = new MockMultipartFile(
+                    "image", fileImage.getName(),
+                    "multipart/form-data", inputFileImage
+            );
+        }catch (IOException exception){
+            throw new IOException(exception.getMessage());
+        }
+
+        File fileCv = new File(
+                "D:\\album\\asser1\\Screenshot 2023-08-20 005201.png"
+        );
+        MockMultipartFile mockFileCv = null;
+        try(FileInputStream inputFileCv = new FileInputStream(fileCv)){
+            mockFileCv = new MockMultipartFile(
+                    "cv", fileCv.getName(),
+                    "multipart/form-data", inputFileCv
+            );
+        }catch (IOException exception){
+            throw new IOException(exception.getMessage());
+        }
+
+        registerDTO.setName("");
+        registerDTO.setNim("13020210051");
+        registerDTO.setPass("@hmadRendi21");
+        registerDTO.setNameMateri("Kotlin");
+        registerDTO.setCv(mockFileCv);
+        registerDTO.setImage(mockFileImage);
+
+
+        mockMvc.perform(
+                MockMvcRequestBuilders.multipart("/api/v1/auth/register")
+                        .file(mockFileCv)
+                        .file(mockFileImage)
+                        .param("name", registerDTO.getName())
+                        .param("nim", registerDTO.getNim())
+                        .param("pass", registerDTO.getPass())
+                        .param("nameMateri", registerDTO.getNameMateri())
+        ).andExpectAll(
+                status().isOk()
+        ).andDo(
+          result -> {
+              ResponseAPI<?> responseAPI = objectMapper.readValue(
+                      result.getResponse().getContentAsString(), ResponseAPI.class
+              );
+              Assertions.assertEquals("gagal menambahkan", responseAPI.message());
+              Assertions.assertNotNull(responseAPI.error());
+              Assertions.assertEquals(500, responseAPI.code());
+
+              System.out.println("status code : " + responseAPI.code());
+              System.out.println("message : " + responseAPI.message());
+              System.out.println("message error : " + responseAPI.error());
+          }
+        );
+    }
+
+    @Test
+    void getUserByNimCache() throws Exception {
+
         mockMvc.perform(MockMvcRequestBuilders
                 .get("/api/v1/auth/nim/13020210050")
                 .contentType(MediaType.APPLICATION_JSON)
-                .header(aut, bear + token)
+                .header(aut, bear + login())
         ).andExpectAll(
                 status().isFound()
         ).andDo(

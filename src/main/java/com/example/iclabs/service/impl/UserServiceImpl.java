@@ -27,8 +27,10 @@ import org.springframework.validation.Errors;
 
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.InputMismatchException;
 import java.util.List;
 import java.util.Optional;
+import java.util.regex.Pattern;
 
 @RequiredArgsConstructor
 @Service
@@ -56,24 +58,51 @@ public class UserServiceImpl implements UserService, UserDetailsService {
     }
 
 
+    private boolean cekPassword(String password){
+
+        boolean findUpCaseInPassword = Pattern.compile("[A-Z]").matcher(password).find();
+        boolean findNumberInPassword = Pattern.compile("[\\d]").matcher(password).find();
+        boolean findSymbolInPassword = Pattern.compile("[\\W]").matcher(password).find();
+        boolean findLowCaseInPassword = Pattern.compile("[a-z]").matcher(password).find();
+
+        if(
+                findSymbolInPassword &&
+                        findUpCaseInPassword &&
+                        findNumberInPassword &&
+                        findLowCaseInPassword
+        ){
+            return true;
+        }
+        throw new InputMismatchException(
+                "password harus campuran angka, symbol, harus besar dan huruf kecia"
+        );
+    }
+
+    private User giveValueToUserNew(RegisterDTO registerDTO) throws IOException {
+        try{
+            User user = new User();
+            user.setName(registerDTO.getName());
+            user.setNim(registerDTO.getNim());
+            user.setPass(passwordEncoder.encode(registerDTO.getPass()));
+            user.setRole(Role.valueOf(registerDTO.getRole()));
+            user.setNameMateri(registerDTO.getNameMateri());
+            user.setImage(registerDTO.getImage().getBytes());
+            user.setCv(registerDTO.getCv().getBytes());
+            return user;
+        }catch (IOException exception){
+            throw new IOException("kesalahan file inputan");
+        }
+    }
+
     @Override
     public ResponseAPI<?> registrasi(RegisterDTO registerDTO, Errors errors) throws IOException {
-        log.info("name yang dikirim : " + registerDTO.getName());
             try{
                 if(
                         doubleNim(registerDTO.getNim()) &&
-                                ErrorHandling.argumentErrorException(errors)
-
+                                ErrorHandling.argumentErrorException(errors) &&
+                                cekPassword(registerDTO.getPass())
                 ){
-                    User user = new User();
-                    user.setName(registerDTO.getName());
-                    user.setNim(registerDTO.getNim());
-                    user.setPass(passwordEncoder.encode(registerDTO.getPass()));
-                    user.setRole(Role.valueOf(registerDTO.getRole()));
-                    user.setNameMateri(registerDTO.getNameMateri());
-                    user.setImage(registerDTO.getImage().getBytes());
-                    user.setCv(registerDTO.getCv().getBytes());
-
+                    User user = giveValueToUserNew(registerDTO);
                     userRepo.save(user);
                     var jwtToken = service.generatedToken(user);
                     return ResponseAPI.builder()
@@ -97,9 +126,14 @@ public class UserServiceImpl implements UserService, UserDetailsService {
 
     public AuthReponse login(LoginDTO loginDTO) {
         var user = loadUserByUsername(loginDTO.getNim());
-        authenticationManager.authenticate(new UsernamePasswordAuthenticationToken(
-                loginDTO.getNim(), loginDTO.getPassword()
-        ));
+
+        /*
+          * ini juga dapat digunakan untuk login
+         */
+//        authenticationManager.authenticate(new UsernamePasswordAuthenticationToken(
+//                loginDTO.getNim(), loginDTO.getPassword()
+//        ));
+
         var jwtToken = service.generatedToken(user);
         return AuthReponse.builder()
                 .token(jwtToken)

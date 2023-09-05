@@ -42,8 +42,6 @@ public class JWTAutenticationFilter extends OncePerRequestFilter {
             return;
         }
 
-        log.info("ini adalah header " + authHeader);
-
         jwt = authHeader.substring(7);
         userNim = jwtService.extractUsername(jwt);
 

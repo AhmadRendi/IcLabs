@@ -1,4 +1,4 @@
-package com.example.iclabs.controller.test;
+package com.example.iclabs.user.controller;
 
 import com.example.iclabs.dto.request.LoginDTO;
 import com.example.iclabs.dto.request.RegisterDTO;
@@ -25,7 +25,7 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 
 @SpringBootTest
 @AutoConfigureMockMvc
-public class UserConstrollerTest {
+public class UserTestRegister {
 
     @Autowired
     private MockMvc mockMvc;

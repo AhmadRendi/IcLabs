@@ -2,6 +2,7 @@ package com.example.iclabs.service.impl;
 
 import com.example.iclabs.dto.request.LoginDTO;
 import com.example.iclabs.dto.request.RegisterDTO;
+import com.example.iclabs.dto.request.UpdateName;
 import com.example.iclabs.dto.respons.AuthReponse;
 import com.example.iclabs.dto.respons.ResponseAPI;
 import com.example.iclabs.entity.User;
@@ -46,12 +47,12 @@ public class UserServiceImpl implements UserService, UserDetailsService {
     @Override
     public UserDetails loadUserByUsername(String username) throws UsernameNotFoundException {
         return userRepo.findByNim(username).orElseThrow(() -> {
-            throw new UsernameNotFoundException("email not found");
+            throw new UsernameNotFoundException("nim not found");
         });
     }
 
     private boolean doubleNim(String nim){
-        if(getUserByNimCache(nim) != null){
+        if(findByNim(nim) != null){
             throw new DoubleNimException("nim telah digunakan");
         }
         return true;
@@ -133,54 +134,45 @@ public class UserServiceImpl implements UserService, UserDetailsService {
     public AuthReponse login(LoginDTO loginDTO) {
         var user = loadUserByUsername(loginDTO.getNim());
 
-        /*
-          * ini juga dapat digunakan untuk login
-         */
-//        authenticationManager.authenticate(new UsernamePasswordAuthenticationToken(
-//                loginDTO.getNim(), loginDTO.getPassword()
-//        ));
-
         var jwtToken = service.generatedToken(user);
         return AuthReponse.builder()
                 .token(jwtToken)
                 .build();
     }
 
-    @Cacheable(value = "userCache", key = "'userList'")
-    public List<User> getAll() {
-        return getAllFromDatabase();
-    }
 
-    private List<User> getAllFromDatabase() {
-        return userRepo.findAll();
-    }
-
-    @Cacheable(key = "#id")
-    public User getUserById(Long id) {
-        return getById(id);
-    }
-
-    private User getUserByNim(String nim){
-        Optional<User> optional = userRepo.findByNim(nim);
-        return optional.orElse(null);
-    }
-
-    @Cacheable(key = "#nim")
-    public User getUserByNimCache(String nim){
-        return getUserByNim(nim);
-    }
-
-    public User getById(Long id) {
-        Optional<User> optional = userRepo.findById(id);
-        return optional.orElse(null);
+    @Override
+    public User findByNim(String nim) {
+        return userRepo.findByNim(nim).orElse(null);
     }
 
     @Override
-    public void updateNameUser(String name, Long id) {
-        userRepo.updateUser(name, id);
+    public ResponseAPI<?> updateNameUser(UpdateName name, String nim, Errors errors){
+        try{
+            if(
+                    ErrorHandling.argumentErrorException(errors)
+            ){
+                userRepo.updateUser(name.getName(), nim);
+                return ResponseAPI.builder()
+                        .code(HttpStatus.CREATED.value())
+                        .message("berhasil merubah")
+                        .build();
+            }
+            return null;
+        }catch (
+                InputMismatchException |
+                IllegalArgumentException exception
+        ){
+            List<String> error = new ArrayList<>();
+            error.add(exception.getMessage());
+            error.add(HttpStatus.NOT_MODIFIED.name());
+
+            return ResponseAPI.builder()
+                    .code(HttpStatus.NOT_MODIFIED.value())
+                    .message("gagal merubah")
+                    .error(error)
+                    .build();
+        }
     }
 
-    public void updateName(String name, Long id) {
-        updateNameUser(name, id);
-    }
 }

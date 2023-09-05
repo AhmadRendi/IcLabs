@@ -18,9 +18,10 @@ public interface UserRepo extends JpaRepository<User, Long> {
 
     @Modifying
     @Transactional
-    @Query("update User u set u.name = :name where u.id = :id")
-    public void updateUser(@Param("name") String name, @Param("id") Long id);
+    @Query("update User u set u.name = :name where u.nim = :nim")
+    public void updateUser(@Param("name") String name, @Param("nim") String nim);
 
     @Query("select u.name, u.nim, u.nameMateri, u.image, u.cv from User u")
-    public List<User> getAllData(); 
+    public List<User> getAllData();
+
 }

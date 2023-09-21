@@ -8,6 +8,7 @@ import io.jsonwebtoken.security.Keys;
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.security.core.userdetails.UserDetails;
+import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.stereotype.Service;
 
 import java.security.Key;
@@ -33,7 +34,16 @@ public class JWTService {
         return extractClaims(token, Claims::getSubject);
     }
 
-    public <T> T extractClaims(String token, Function<Claims, T> claimsTFunction){
+    public String extract(String token){
+        String claims = extractClaims(token, Claims::getSubject);
+        if(claims.isBlank()){
+            throw new UsernameNotFoundException("username tidak ditemukan");
+        }else {
+            return claims;
+        }
+    }
+
+    private <T> T extractClaims(String token, Function<Claims, T> claimsTFunction){
         final Claims claims = extractAllClaims(token);
         return claimsTFunction.apply(claims);
     }

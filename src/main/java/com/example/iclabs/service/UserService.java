@@ -11,9 +11,11 @@ import java.io.IOException;
 
 public interface UserService {
 
+    @Deprecated
     public ResponseAPI<?> registrasi(RegisterDTO registerDTO, Errors errors) throws IOException;
 
-    public ResponseAPI<?> updateNameUser(UpdateName name, String nim, Errors errors);
+    @Deprecated
+    public ResponseAPI<?> updateNameUser(UpdateName name, Errors errors);
 
     public User findByNim(String nim);
 

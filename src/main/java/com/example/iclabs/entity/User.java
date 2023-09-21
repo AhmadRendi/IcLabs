@@ -33,11 +33,14 @@ public class User implements UserDetails {
     @Column(columnDefinition = "longblob")
     private byte[] image;
 
+    @Deprecated
     private String nameMateri;
 
+    @Deprecated
     @Lob
     @Column(columnDefinition = "longblob")
     private byte[] cv;
+
 
     @Enumerated(EnumType.STRING)
     private Role role;

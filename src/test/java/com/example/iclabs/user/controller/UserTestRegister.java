@@ -42,8 +42,7 @@ public class UserTestRegister {
 
         RegisterDTO registerDTO = new RegisterDTO();
 
-        File fileImage = new File("D:\\album\\asser1\\WhatsApp " +
-                "Image 2023-08-30 at 10.33.32.jpg");
+        File fileImage = new File("/home/ahmad/Pictures/foto saya/index1.jpeg");
         MockMultipartFile mockImgeFile = null;
         try(FileInputStream inputImage = new FileInputStream(fileImage)){
             mockImgeFile =  new MockMultipartFile("image",
@@ -55,7 +54,7 @@ public class UserTestRegister {
             Assertions.assertNull(e);
         }
 
-        File fileCv = new File("D:\\album\\asser1\\Screenshot 2023-08-20 005201.png");
+        File fileCv = new File("/home/ahmad/Pictures/foto saya/index1.jpeg");
         MockMultipartFile mockCvFile = null;
         try(FileInputStream inputCv = new FileInputStream(fileCv)){
             mockCvFile = new MockMultipartFile("cv",
@@ -100,8 +99,8 @@ public class UserTestRegister {
 
     String login() throws Exception {
 
-        String nim = "13020210050";
-        String pass = "123";
+        String nim = "13020210053";
+        String pass = "bi@ncA09";
 
         AtomicReference<String> token = new AtomicReference<>("");
 

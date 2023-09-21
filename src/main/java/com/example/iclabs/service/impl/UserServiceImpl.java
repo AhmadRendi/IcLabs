@@ -14,10 +14,8 @@ import com.example.iclabs.validation.DoubleNimException;
 import com.example.iclabs.validation.ErrorHandling;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.cache.annotation.Cacheable;
 import org.springframework.http.HttpStatus;
 import org.springframework.security.authentication.AuthenticationManager;
-import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
@@ -30,7 +28,6 @@ import java.io.IOException;
 import java.util.ArrayList;
 import java.util.InputMismatchException;
 import java.util.List;
-import java.util.Optional;
 import java.util.regex.Pattern;
 
 @RequiredArgsConstructor
@@ -42,13 +39,11 @@ public class UserServiceImpl implements UserService, UserDetailsService {
     private final UserRepo userRepo;
     private final PasswordEncoder passwordEncoder;
     private final JWTService service;
-    private final AuthenticationManager authenticationManager;
+
 
     @Override
     public UserDetails loadUserByUsername(String username) throws UsernameNotFoundException {
-        return userRepo.findByNim(username).orElseThrow(() -> {
-            throw new UsernameNotFoundException("nim not found");
-        });
+        return userRepo.findByNim(username).orElseThrow(() -> new UsernameNotFoundException("nim not found"));
     }
 
     private boolean doubleNim(String nim){
@@ -79,6 +74,8 @@ public class UserServiceImpl implements UserService, UserDetailsService {
         );
     }
 
+
+    @Deprecated
     private User giveValueToUserNew(RegisterDTO registerDTO) throws IOException {
         try{
             User user = new User();
@@ -95,13 +92,15 @@ public class UserServiceImpl implements UserService, UserDetailsService {
         }
     }
 
+    @Deprecated
     @Override
     public ResponseAPI<?> registrasi(RegisterDTO registerDTO, Errors errors) throws IOException {
             try{
                 if(
                         doubleNim(registerDTO.getNim()) &&
                                 ErrorHandling.argumentErrorException(errors) &&
-                                cekPassword(registerDTO.getPass())
+                                cekPassword(registerDTO.getPass()) &&
+                                cekNameIsValid(registerDTO.getName())
                 ){
                     User user = giveValueToUserNew(registerDTO);
                     userRepo.save(user);
@@ -131,6 +130,10 @@ public class UserServiceImpl implements UserService, UserDetailsService {
         return null;
     }
 
+    public ResponseAPI<?> regis(){
+        return null;
+    }
+
     public AuthReponse login(LoginDTO loginDTO) {
         var user = loadUserByUsername(loginDTO.getNim());
 
@@ -146,13 +149,24 @@ public class UserServiceImpl implements UserService, UserDetailsService {
         return userRepo.findByNim(nim).orElse(null);
     }
 
+
+    private boolean cekNameIsValid(String name){
+        boolean nameIsNumber = Pattern.compile("[a-zA-Z]").matcher(name).find();
+        boolean nameIsSymbol = Pattern.compile("[\\p{Punct}]").matcher(name).find();
+        if(!nameIsNumber || nameIsSymbol){
+            throw new InputMismatchException("name is not valid");
+        }
+        return true;
+    }
+
     @Override
-    public ResponseAPI<?> updateNameUser(UpdateName name, String nim, Errors errors){
+    public ResponseAPI<?> updateNameUser(UpdateName name, Errors errors){
         try{
             if(
-                    ErrorHandling.argumentErrorException(errors)
+                    ErrorHandling.argumentErrorException(errors) |
+                            cekNameIsValid(name.getName())
             ){
-                userRepo.updateUser(name.getName(), nim);
+                userRepo.updateUser(name.getName(), service.extractUsername(name.getToken()));
                 return ResponseAPI.builder()
                         .code(HttpStatus.CREATED.value())
                         .message("berhasil merubah")
@@ -174,5 +188,4 @@ public class UserServiceImpl implements UserService, UserDetailsService {
                     .build();
         }
     }
-
 }

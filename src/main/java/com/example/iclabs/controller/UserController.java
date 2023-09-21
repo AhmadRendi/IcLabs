@@ -25,6 +25,7 @@ public class UserController {
 
     private final UserServiceImpl userService;
 
+    @Deprecated
     @PostMapping("/register")
     public ResponseEntity<ResponseAPI<?>> register(
             @Valid
@@ -51,7 +52,7 @@ public class UserController {
     ){
         return ResponseEntity.ok(
                 userService.updateNameUser(
-                        updateName, updateName.getNim(), errors)
+                        updateName, errors)
         );
     }
 

@@ -65,5 +65,4 @@ public class ApplicationConfig {
         return new CaffeineCacheManager();
     }
 
-
 }

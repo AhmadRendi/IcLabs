@@ -4,6 +4,7 @@ import com.example.iclabs.dto.request.LoginDTO;
 import com.example.iclabs.dto.request.UpdateName;
 import com.example.iclabs.dto.respons.AuthReponse;
 import com.example.iclabs.dto.respons.ResponseAPI;
+import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
@@ -38,8 +39,8 @@ public class UserTestUpdateName {
 
     String login() throws Exception {
 
-        String nim = "13020210049";
-        String pass = "123";
+        String nim = "13020210053";
+        String pass = "bi@ncA09";
 
         AtomicReference<String> token = new AtomicReference<>("");
 
@@ -72,15 +73,15 @@ public class UserTestUpdateName {
     void updateNameSuccess() throws Exception {
         UpdateName updateName = new UpdateName();
 
-        updateName.setName("Fajri");
-        updateName.setNim("13020210049");
+        updateName.setName("Afian Febrianto");
+        updateName.setToken(login());
 
         mockMvc.perform(
                 put("/api/v1/auth/update")
                         .accept(MediaType.APPLICATION_JSON)
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(objectMapper.writeValueAsString(updateName))
-                        .header(aut, bear + login())
+                        .header(aut, bear + updateName.getToken())
         ).andExpectAll(
                 status().isOk()
         ).andDo(
@@ -105,7 +106,6 @@ public class UserTestUpdateName {
         UpdateName updateName = new UpdateName();
 
         updateName.setName(" ");
-        updateName.setNim("13020210049");
 
         mockMvc.perform(
                 put("/api/v1/auth/update")
@@ -128,6 +128,73 @@ public class UserTestUpdateName {
 
                     System.out.println("code status : "  + responseAPI.code());
                     System.out.println("message  : "  + responseAPI.message());
+                }
+        );
+    }
+
+
+    @Test
+    void updateNameIsFailedBecauseNameNotValidNumber() throws Exception {
+
+        UpdateName name = new UpdateName();
+
+        name.setName("21");
+        name.setToken(login());
+
+        mockMvc.perform(
+                put("/api/v1/auth/update")
+                        .accept(MediaType.APPLICATION_JSON)
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(objectMapper.writeValueAsString(name))
+                        .header(aut, bear + name.getToken())
+        ).andExpectAll(
+                status().isOk()
+        ).andDo(
+                result -> {
+                    ResponseAPI<?>  responseAPI = objectMapper.readValue(
+                            result.getResponse().getContentAsString(), ResponseAPI.class
+                    );
+
+                    Assertions.assertNotNull(responseAPI.error());
+                    Assertions.assertEquals(304, responseAPI.code());
+                    Assertions.assertEquals("gagal merubah", responseAPI.message());
+
+                    System.out.println("code status : " + responseAPI.code());
+                    System.out.println("message : " + responseAPI.message());
+                    System.out.println("error : " + responseAPI.error().get(0));
+                }
+        );
+    }
+
+    @Test
+    void updateNameIsFailedBecauseNameNotValidSymbol() throws Exception {
+
+        UpdateName name = new UpdateName();
+
+        name.setName("@hmad");
+        name.setToken(login());
+
+        mockMvc.perform(
+                put("/api/v1/auth/update")
+                        .accept(MediaType.APPLICATION_JSON)
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(objectMapper.writeValueAsString(name))
+                        .header(aut, bear + name.getToken())
+        ).andExpectAll(
+                status().isOk()
+        ).andDo(
+                result -> {
+                    ResponseAPI<?>  responseAPI = objectMapper.readValue(
+                            result.getResponse().getContentAsString(), ResponseAPI.class
+                    );
+
+                    Assertions.assertNotNull(responseAPI.error());
+                    Assertions.assertEquals(304, responseAPI.code());
+                    Assertions.assertEquals("gagal merubah", responseAPI.message());
+
+                    System.out.println("code status : " + responseAPI.code());
+                    System.out.println("message : " + responseAPI.message());
+                    System.out.println("error : " + responseAPI.error().get(0));
                 }
         );
     }

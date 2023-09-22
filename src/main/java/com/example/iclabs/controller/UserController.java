@@ -52,11 +52,7 @@ public class UserController {
     ){
         return ResponseEntity.ok(
                 userService.updateNameUser(
-<<<<<<< HEAD
-                        updateName, errors)
-=======
                         updateName, updateName.getNim(), errors)
->>>>>>> 2fb10281cee9f45fa367f2f5f71ed1148e3e380f
         );
     }
 

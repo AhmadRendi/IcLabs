@@ -14,12 +14,10 @@ public interface UserService {
     @Deprecated
     public ResponseAPI<?> registrasi(RegisterDTO registerDTO, Errors errors) throws IOException;
 
-<<<<<<< HEAD
     @Deprecated
     public ResponseAPI<?> updateNameUser(UpdateName name, Errors errors);
-=======
+
     public ResponseAPI<?> updateNameUser(UpdateName name, String nim, Errors errors);
->>>>>>> 2fb10281cee9f45fa367f2f5f71ed1148e3e380f
 
     public User findByNim(String nim);
 

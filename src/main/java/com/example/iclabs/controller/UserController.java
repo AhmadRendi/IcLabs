@@ -2,6 +2,7 @@ package com.example.iclabs.controller;
 
 import com.example.iclabs.dto.request.LoginDTO;
 import com.example.iclabs.dto.request.RegisterDTO;
+import com.example.iclabs.dto.request.RequestRegisUserDTO;
 import com.example.iclabs.dto.request.UpdateName;
 import com.example.iclabs.dto.respons.AuthReponse;
 import com.example.iclabs.dto.respons.ResponseAPI;
@@ -37,6 +38,17 @@ public class UserController {
         );
     }
 
+    @PostMapping("/regis")
+    public ResponseEntity<ResponseAPI<?>> regis(
+            @Valid
+            @RequestBody RequestRegisUserDTO regisUserDTO,
+            Errors errors
+            ){
+        return ResponseEntity.ok(
+                userService.regis(regisUserDTO, errors)
+        );
+    }
+
     @GetMapping("/login")
     public ResponseEntity<AuthReponse> authentication (
             @RequestBody LoginDTO request
@@ -46,6 +58,7 @@ public class UserController {
         );
     }
 
+    @Deprecated
     @PutMapping("/update")
     public ResponseEntity<ResponseAPI<?>> updateNameUser(@Valid @RequestBody  UpdateName updateName,
                                                          Errors errors
@@ -53,6 +66,14 @@ public class UserController {
         return ResponseEntity.ok(
                 userService.updateNameUser(
                         updateName, updateName.getNim(), errors)
+        );
+    }
+
+    @PutMapping("update/name")
+    public ResponseEntity<ResponseAPI<?>> updateNameUsers (@Valid @RequestBody UpdateName update,
+                                                        Errors errors){
+        return ResponseEntity.ok(
+                userService.updateNameUser(update, errors)
         );
     }
 

@@ -16,7 +16,6 @@ public interface UserService {
 
     @Deprecated
     public ResponseAPI<?> updateNameUser(UpdateName name, Errors errors);
-
     public ResponseAPI<?> updateNameUser(UpdateName name, String nim, Errors errors);
 
     public User findByNim(String nim);

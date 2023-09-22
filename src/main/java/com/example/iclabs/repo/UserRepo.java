@@ -16,6 +16,8 @@ public interface UserRepo extends JpaRepository<User, Long> {
 
     public Optional<User> findByNim(String email);
 
+    
+
     @Modifying
     @Transactional
     @Query("update User u set u.name = :name where u.nim = :nim")

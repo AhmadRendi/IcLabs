@@ -2,6 +2,7 @@ package com.example.iclabs.service.impl;
 
 import com.example.iclabs.dto.request.LoginDTO;
 import com.example.iclabs.dto.request.RegisterDTO;
+import com.example.iclabs.dto.request.RequestRegisUserDTO;
 import com.example.iclabs.dto.request.UpdateName;
 import com.example.iclabs.dto.respons.AuthReponse;
 import com.example.iclabs.dto.respons.ResponseAPI;
@@ -15,7 +16,6 @@ import com.example.iclabs.validation.ErrorHandling;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpStatus;
-import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
@@ -94,6 +94,14 @@ public class UserServiceImpl implements UserService, UserDetailsService {
         }
     }
 
+    private User giveValueToUsers(RequestRegisUserDTO regisUserDTO){
+        User user = new User();
+        user.setName(regisUserDTO.getName());
+        user.setNim(regisUserDTO.getNim());
+        user.setPass(regisUserDTO.getPass());
+        return user;
+    }
+
     @Deprecated
     @Override
     public ResponseAPI<?> registrasi(RegisterDTO registerDTO, Errors errors) throws IOException {
@@ -132,9 +140,40 @@ public class UserServiceImpl implements UserService, UserDetailsService {
         return null;
     }
 
-    public ResponseAPI<?> regis(){
+    public ResponseAPI<?> regis(RequestRegisUserDTO regisUserDTO, Errors errors){
+        try{
+            if(
+                    doubleNim(regisUserDTO.getName()) &&
+                            ErrorHandling.argumentErrorException(errors) &&
+                            cekPassword(regisUserDTO.getPass()) &&
+                            cekNameIsValid((regisUserDTO.getName()))
+            ){
+                User user = userRepo.save(giveValueToUsers(regisUserDTO));
+                var jwtToken = service.generatedToken(user);
+                return ResponseAPI.builder()
+                        .code(HttpStatus.CREATED.value())
+                        .token(jwtToken)
+                        .message("berhasil menambahkan")
+                        .build();
+            }
+        }catch (
+                DoubleNimException |
+                        IllegalArgumentException |
+                        InputMismatchException exception
+        ){
+            List<String>  error = new ArrayList<>();
+            error.add(exception.getMessage());
+            error.add(HttpStatus.INTERNAL_SERVER_ERROR.name());
+
+            return ResponseAPI.builder()
+                    .code(HttpStatus.INTERNAL_SERVER_ERROR.value())
+                    .error(error)
+                    .message("gagal menambahkan")
+                    .build();
+        }
         return null;
     }
+
 
     public AuthReponse login(LoginDTO loginDTO) {
         var user = loadUserByUsername(loginDTO.getNim());
@@ -170,6 +209,7 @@ public class UserServiceImpl implements UserService, UserDetailsService {
             ) {
                 userRepo.updateUser(name.getName(), service.extractUsername(name.getToken()));
                 return ResponseAPI.builder()
+                        .code(HttpStatus.CREATED.value())
                         .message("berhasil merubah nama")
                         .build();
             }
@@ -179,12 +219,14 @@ public class UserServiceImpl implements UserService, UserDetailsService {
         return null;
     }
 
+    @Deprecated
     @Override
-    public ResponseAPI<?> updateNameUser(UpdateName name, String nim, Errors errors){
-        try{
-            if(
-                    ErrorHandling.argumentErrorException(errors)
-            ){
+    public ResponseAPI<?> updateNameUser(UpdateName name, String nim, Errors errors) {
+        try {
+            if (
+                    ErrorHandling.argumentErrorException(errors) &&
+                            cekNameIsValid(name.getName())
+            ) {
                 userRepo.updateUser(name.getName(), nim);
                 return ResponseAPI.builder()
                         .code(HttpStatus.CREATED.value())
@@ -192,10 +234,10 @@ public class UserServiceImpl implements UserService, UserDetailsService {
                         .build();
             }
             return null;
-        }catch (
+        } catch (
                 InputMismatchException |
                 IllegalArgumentException exception
-        ){
+        ) {
             List<String> error = new ArrayList<>();
             error.add(exception.getMessage());
             error.add(HttpStatus.NOT_MODIFIED.name());
@@ -207,13 +249,4 @@ public class UserServiceImpl implements UserService, UserDetailsService {
                     .build();
         }
     }
-
-            return ResponseAPI.builder()
-                    .code(HttpStatus.NOT_MODIFIED.value())
-                    .message("gagal merubah")
-                    .error(errors)
-                    .build();
-        }
-    }
-
 }

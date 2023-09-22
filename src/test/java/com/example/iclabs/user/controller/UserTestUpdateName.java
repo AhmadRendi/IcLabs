@@ -4,10 +4,7 @@ import com.example.iclabs.dto.request.LoginDTO;
 import com.example.iclabs.dto.request.UpdateName;
 import com.example.iclabs.dto.respons.AuthReponse;
 import com.example.iclabs.dto.respons.ResponseAPI;
-<<<<<<< HEAD
 import com.fasterxml.jackson.core.JsonProcessingException;
-=======
->>>>>>> 2fb10281cee9f45fa367f2f5f71ed1148e3e380f
 import com.fasterxml.jackson.databind.ObjectMapper;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
@@ -42,13 +39,8 @@ public class UserTestUpdateName {
 
     String login() throws Exception {
 
-<<<<<<< HEAD
         String nim = "13020210053";
         String pass = "bi@ncA09";
-=======
-        String nim = "13020210049";
-        String pass = "123";
->>>>>>> 2fb10281cee9f45fa367f2f5f71ed1148e3e380f
 
         AtomicReference<String> token = new AtomicReference<>("");
 
@@ -81,24 +73,15 @@ public class UserTestUpdateName {
     void updateNameSuccess() throws Exception {
         UpdateName updateName = new UpdateName();
 
-<<<<<<< HEAD
-        updateName.setName("Afian Febrianto");
+        updateName.setName("Abdillah");
         updateName.setToken(login());
-=======
-        updateName.setName("Fajri");
-        updateName.setNim("13020210049");
->>>>>>> 2fb10281cee9f45fa367f2f5f71ed1148e3e380f
 
         mockMvc.perform(
-                put("/api/v1/auth/update")
+                put("/api/v1/auth/update/name")
                         .accept(MediaType.APPLICATION_JSON)
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(objectMapper.writeValueAsString(updateName))
-<<<<<<< HEAD
                         .header(aut, bear + updateName.getToken())
-=======
-                        .header(aut, bear + login())
->>>>>>> 2fb10281cee9f45fa367f2f5f71ed1148e3e380f
         ).andExpectAll(
                 status().isOk()
         ).andDo(
@@ -109,7 +92,7 @@ public class UserTestUpdateName {
 
                     Assertions.assertNull(responseAPI.error());
                     Assertions.assertEquals(201, responseAPI.code());
-                    Assertions.assertEquals("berhasil merubah", responseAPI.message());
+                    Assertions.assertEquals("berhasil merubah nama", responseAPI.message());
 
 
                     System.out.println("code status : "  + responseAPI.code());
@@ -123,13 +106,10 @@ public class UserTestUpdateName {
         UpdateName updateName = new UpdateName();
 
         updateName.setName(" ");
-<<<<<<< HEAD
-=======
         updateName.setNim("13020210049");
->>>>>>> 2fb10281cee9f45fa367f2f5f71ed1148e3e380f
 
         mockMvc.perform(
-                put("/api/v1/auth/update")
+                put("/api/v1/auth/update/name")
                         .accept(MediaType.APPLICATION_JSON)
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(objectMapper.writeValueAsString(updateName))
@@ -146,13 +126,12 @@ public class UserTestUpdateName {
                     Assertions.assertEquals(304, responseAPI.code());
                     Assertions.assertEquals("gagal merubah", responseAPI.message());
 
-
                     System.out.println("code status : "  + responseAPI.code());
                     System.out.println("message  : "  + responseAPI.message());
+                    System.out.println("error : " + responseAPI.error().get(0));
                 }
         );
     }
-<<<<<<< HEAD
 
 
     @Test
@@ -164,7 +143,7 @@ public class UserTestUpdateName {
         name.setToken(login());
 
         mockMvc.perform(
-                put("/api/v1/auth/update")
+                put("/api/v1/auth/update/name")
                         .accept(MediaType.APPLICATION_JSON)
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(objectMapper.writeValueAsString(name))
@@ -197,7 +176,7 @@ public class UserTestUpdateName {
         name.setToken(login());
 
         mockMvc.perform(
-                put("/api/v1/auth/update")
+                put("/api/v1/auth/update/name")
                         .accept(MediaType.APPLICATION_JSON)
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(objectMapper.writeValueAsString(name))
@@ -220,6 +199,4 @@ public class UserTestUpdateName {
                 }
         );
     }
-=======
->>>>>>> 2fb10281cee9f45fa367f2f5f71ed1148e3e380f
 }

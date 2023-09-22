@@ -16,5 +16,9 @@ public class UpdateName {
     @NotBlank(message = "nama tidak boleh kosong")
     private String name;
 
+<<<<<<< HEAD
     private String token;
+=======
+    private String nim;
+>>>>>>> 2fb10281cee9f45fa367f2f5f71ed1148e3e380f
 }

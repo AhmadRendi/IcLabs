@@ -43,7 +43,13 @@ public class UserServiceImpl implements UserService, UserDetailsService {
 
     @Override
     public UserDetails loadUserByUsername(String username) throws UsernameNotFoundException {
+<<<<<<< HEAD
         return userRepo.findByNim(username).orElseThrow(() -> new UsernameNotFoundException("nim not found"));
+=======
+        return userRepo.findByNim(username).orElseThrow(() -> {
+            throw new UsernameNotFoundException("nim not found");
+        });
+>>>>>>> 2fb10281cee9f45fa367f2f5f71ed1148e3e380f
     }
 
     private boolean doubleNim(String nim){
@@ -143,6 +149,7 @@ public class UserServiceImpl implements UserService, UserDetailsService {
                 .build();
     }
 
+<<<<<<< HEAD
 
     @Override
     public User findByNim(String nim) {
@@ -167,6 +174,21 @@ public class UserServiceImpl implements UserService, UserDetailsService {
                             cekNameIsValid(name.getName())
             ){
                 userRepo.updateUser(name.getName(), service.extractUsername(name.getToken()));
+=======
+
+    @Override
+    public User findByNim(String nim) {
+        return userRepo.findByNim(nim).orElse(null);
+    }
+
+    @Override
+    public ResponseAPI<?> updateNameUser(UpdateName name, String nim, Errors errors){
+        try{
+            if(
+                    ErrorHandling.argumentErrorException(errors)
+            ){
+                userRepo.updateUser(name.getName(), nim);
+>>>>>>> 2fb10281cee9f45fa367f2f5f71ed1148e3e380f
                 return ResponseAPI.builder()
                         .code(HttpStatus.CREATED.value())
                         .message("berhasil merubah")
@@ -180,6 +202,7 @@ public class UserServiceImpl implements UserService, UserDetailsService {
             List<String> error = new ArrayList<>();
             error.add(exception.getMessage());
             error.add(HttpStatus.NOT_MODIFIED.name());
+<<<<<<< HEAD
 
             return ResponseAPI.builder()
                     .code(HttpStatus.NOT_MODIFIED.value())
@@ -188,4 +211,15 @@ public class UserServiceImpl implements UserService, UserDetailsService {
                     .build();
         }
     }
+=======
+
+            return ResponseAPI.builder()
+                    .code(HttpStatus.NOT_MODIFIED.value())
+                    .message("gagal merubah")
+                    .error(error)
+                    .build();
+        }
+    }
+
+>>>>>>> 2fb10281cee9f45fa367f2f5f71ed1148e3e380f
 }

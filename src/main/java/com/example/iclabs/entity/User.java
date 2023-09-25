@@ -20,13 +20,17 @@ import java.util.List;
 @AllArgsConstructor
 @Entity
 @Table(name = "tbl_user")
+@Deprecated
 public class User implements UserDetails {
 
     @Id
     @GeneratedValue
     private Long id;
+
     private String name;
+
     private String nim;
+
     private String pass;
 
     @Lob

@@ -22,6 +22,7 @@ import java.io.IOException;
 @RequestMapping("/api/v1/auth")
 @RequiredArgsConstructor
 @Slf4j
+@Deprecated
 public class UserController {
 
     private final UserServiceImpl userService;
@@ -69,6 +70,7 @@ public class UserController {
         );
     }
 
+    @Deprecated
     @PutMapping("update/name")
     public ResponseEntity<ResponseAPI<?>> updateNameUsers (@Valid @RequestBody UpdateName update,
                                                         Errors errors){

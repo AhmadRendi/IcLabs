@@ -20,7 +20,8 @@ public class SecurityConfig {
     private final JWTAutenticationFilter filter;
     private final AuthenticationProvider authenticationProvider;
 
-    @Bean
+    @Deprecated
+//    @Bean
     public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
         http.csrf(AbstractHttpConfigurer::disable)
                 .authorizeHttpRequests(auth -> {
@@ -36,4 +37,22 @@ public class SecurityConfig {
                 .httpBasic(AbstractHttpConfigurer::disable);
         return http.build();
     }
+
+    @Bean
+    public SecurityFilterChain securityFilterChains(HttpSecurity http) throws Exception {
+        http.csrf(AbstractHttpConfigurer::disable)
+                .authorizeHttpRequests(auth -> {
+                    auth.requestMatchers("/api/v1/auth/users/regis").permitAll();
+                    auth.requestMatchers("/api/users/login").permitAll();
+                    auth.anyRequest().authenticated();
+                })
+                .sessionManagement(sesMan -> {
+                    sesMan.sessionCreationPolicy(SessionCreationPolicy.STATELESS);
+                })
+                .authenticationProvider(authenticationProvider)
+                .addFilterBefore(filter, UsernamePasswordAuthenticationFilter.class)
+                .httpBasic(AbstractHttpConfigurer::disable);
+        return http.build();
+    }
+
 }

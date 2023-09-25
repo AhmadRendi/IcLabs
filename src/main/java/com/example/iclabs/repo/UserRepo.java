@@ -11,12 +11,13 @@ import org.springframework.transaction.annotation.Transactional;
 import java.util.List;
 import java.util.Optional;
 
+@Deprecated
 @Repository
 public interface UserRepo extends JpaRepository<User, Long> {
 
     public Optional<User> findByNim(String email);
 
-    
+
 
     @Modifying
     @Transactional

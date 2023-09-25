@@ -1,5 +1,6 @@
 package com.example.iclabs.config;
 
+import com.example.iclabs.repo.CalonAsistenRepo;
 import com.example.iclabs.repo.UserRepo;
 import lombok.RequiredArgsConstructor;
 import org.modelmapper.ModelMapper;
@@ -24,12 +25,16 @@ import java.security.Key;
 @RequiredArgsConstructor
 public class ApplicationConfig {
 
+    @Deprecated
     private final UserRepo userRepo;
+
+    private final CalonAsistenRepo calonAsistenRepo;
 
 
     /*
     ini adalah sebuah contoh untuk pembuatan bean untuk sebuah class
      */
+    @Deprecated
     @Bean
     public UserDetailsService userDetailsService(){
         return username -> userRepo
@@ -38,9 +43,25 @@ public class ApplicationConfig {
     }
 
     @Bean
+    public UserDetailsService userDetailsServices(){
+        return username -> calonAsistenRepo
+                .findByNim(username)
+                .orElseThrow(() -> new UsernameNotFoundException("user not found"));
+    }
+
+    @Deprecated
+    @Bean
     public AuthenticationProvider authenticationProvider(){
         DaoAuthenticationProvider provider = new DaoAuthenticationProvider();
         provider.setUserDetailsService(userDetailsService());
+        provider.setPasswordEncoder(passwordEncoder());
+        return provider;
+    }
+
+    @Bean
+    public AuthenticationProvider authenticationProviders(){
+        DaoAuthenticationProvider provider = new DaoAuthenticationProvider();
+        provider.setUserDetailsService(userDetailsServices());
         provider.setPasswordEncoder(passwordEncoder());
         return provider;
     }

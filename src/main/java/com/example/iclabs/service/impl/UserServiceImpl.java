@@ -33,9 +33,11 @@ import java.util.regex.Pattern;
 @RequiredArgsConstructor
 @Service
 @Slf4j
+@Deprecated
 @org.springframework.cache.annotation.CacheConfig(cacheNames = "user")
 public class UserServiceImpl implements UserService, UserDetailsService {
 
+    @Deprecated
     private final UserRepo userRepo;
     private final PasswordEncoder passwordEncoder;
     private final JWTService service;
@@ -43,12 +45,14 @@ public class UserServiceImpl implements UserService, UserDetailsService {
 
     @Override
     public UserDetails loadUserByUsername(String username) throws UsernameNotFoundException {
-        return userRepo.findByNim(username).orElseThrow(() -> {
-            throw new UsernameNotFoundException("nim not found");
-        });
+        return userRepo.findByNim(username).orElseThrow(() -> new UsernameNotFoundException("nim not found"));
     }
 
-    private boolean doubleNim(String nim){
+
+
+
+    @Deprecated
+    public boolean doubleNim(String nim){
         if(findByNim(nim) != null){
             throw new DoubleNimException("nim telah digunakan");
         }
@@ -56,7 +60,7 @@ public class UserServiceImpl implements UserService, UserDetailsService {
     }
 
 
-    private boolean cekPassword(String password){
+    public boolean cekPassword(String password){
 
         boolean findUpCaseInPassword = Pattern.compile("[A-Z]").matcher(password).find();
         boolean findNumberInPassword = Pattern.compile("[\\d]").matcher(password).find();
@@ -94,6 +98,7 @@ public class UserServiceImpl implements UserService, UserDetailsService {
         }
     }
 
+    @Deprecated
     private User giveValueToUsers(RequestRegisUserDTO regisUserDTO){
         User user = new User();
         user.setName(regisUserDTO.getName());
@@ -140,6 +145,7 @@ public class UserServiceImpl implements UserService, UserDetailsService {
         return null;
     }
 
+    @Deprecated
     public ResponseAPI<?> regis(RequestRegisUserDTO regisUserDTO, Errors errors){
         try{
             if(
@@ -186,12 +192,13 @@ public class UserServiceImpl implements UserService, UserDetailsService {
 
 
     @Override
+    @Deprecated
     public User findByNim(String nim) {
         return userRepo.findByNim(nim).orElse(null);
     }
 
 
-    private boolean cekNameIsValid(String name){
+    public boolean cekNameIsValid(String name){
         boolean nameIsNumber = Pattern.compile("[a-zA-Z]").matcher(name).find();
         boolean nameIsSymbol = Pattern.compile("[\\p{Punct}]").matcher(name).find();
         if(!nameIsNumber || nameIsSymbol){
@@ -201,6 +208,7 @@ public class UserServiceImpl implements UserService, UserDetailsService {
     }
 
     @Override
+    @Deprecated
     public ResponseAPI<?> updateNameUser(UpdateName name, Errors errors) {
         try {
             if (

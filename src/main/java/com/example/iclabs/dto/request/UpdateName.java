@@ -18,5 +18,6 @@ public class UpdateName {
 
     private String token;
 
+    @Deprecated
     private String nim;
 }

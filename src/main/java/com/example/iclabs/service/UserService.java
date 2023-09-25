@@ -9,12 +9,11 @@ import org.springframework.validation.Errors;
 
 import java.io.IOException;
 
+@Deprecated
 public interface UserService {
 
-    @Deprecated
     public ResponseAPI<?> registrasi(RegisterDTO registerDTO, Errors errors) throws IOException;
 
-    @Deprecated
     public ResponseAPI<?> updateNameUser(UpdateName name, Errors errors);
     public ResponseAPI<?> updateNameUser(UpdateName name, String nim, Errors errors);
 
